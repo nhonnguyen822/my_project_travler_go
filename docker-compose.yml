@@ -1,0 +1,58 @@
+version: "3.9"
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: mysql-travel
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: travel_db
+      MYSQL_USER: travel_user
+      MYSQL_PASSWORD: 123456
+    ports:
+      - "3308:3306"   
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - travel-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build: ./tour-travel-server
+    container_name: travel-backend
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/travel_db
+      SPRING_DATASOURCE_USERNAME: travel_user
+      SPRING_DATASOURCE_PASSWORD: 123456
+      JWT_SECRET: K2FzZk1KR2xBc0dqa0xTZFNLQ0ZTSm5Qb1lHSnBjd0FkUm5jR2lXQ2hFZ1lXbG1tQ1pT
+      JWT_EXPIRATION_MS: 86400000
+      APP_FRONTEND_URL: http://frontend:80
+    depends_on:
+      mysql:
+        condition: service_healthy
+    networks:
+      - travel-network
+
+  frontend:
+    build: ./tour-travel
+    container_name: travel-frontend
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+    networks:
+      - travel-network
+
+volumes:
+  mysql_data:
+
+networks:
+  travel-network:
+    driver: bridge
