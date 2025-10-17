@@ -1,6 +1,7 @@
 package com.example.tourtravelserver.entity;
 
 import com.example.tourtravelserver.enums.TourStatus;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -25,6 +26,8 @@ public class Tour {
 
     @Column(columnDefinition = "TEXT")
     private String description;
+    @Column(columnDefinition = "TEXT")
+    private String highLight;
 
     private String duration;
 
@@ -38,5 +41,11 @@ public class Tour {
     @ManyToOne
     @JoinColumn(name = "region_id")
     private Region region;
-    
+
+    @OneToMany(mappedBy = "tour", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OrderBy("dayIndex ASC")
+    @JsonManagedReference
+    private List<ItineraryDay> itineraryDays;
+
+
 }

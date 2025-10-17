@@ -9,7 +9,6 @@ import lombok.Setter;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.List;
 
 @Entity
 @Table(name = "tour_schedules")
@@ -28,6 +27,8 @@ public class TourSchedule {
     private Integer availableSlots;
 
     private BigDecimal price;
+    private BigDecimal childPrice;
+    private BigDecimal babyPrice;
 
     @Enumerated(EnumType.STRING)
     private ScheduleStatus status;

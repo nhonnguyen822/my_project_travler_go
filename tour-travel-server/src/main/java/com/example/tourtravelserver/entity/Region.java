@@ -22,4 +22,8 @@ public class Region {
 
     private String name;
 
+    private String image;
+
+    private String highlights;
+
 }

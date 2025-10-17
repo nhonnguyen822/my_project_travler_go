@@ -4,16 +4,15 @@ import com.example.tourtravelserver.dto.BookingRequest;
 import com.example.tourtravelserver.entity.Booking;
 import com.example.tourtravelserver.entity.Payment;
 import com.example.tourtravelserver.entity.TourSchedule;
+import com.example.tourtravelserver.entity.User;
 import com.example.tourtravelserver.enums.BookingStatus;
 import com.example.tourtravelserver.enums.PaymentMethod;
 import com.example.tourtravelserver.enums.PaymentStatus;
-import com.example.tourtravelserver.repository.IBookingRepository;
+import com.example.tourtravelserver.repository.*;
 
-import com.example.tourtravelserver.repository.IPaymentRepository;
-import com.example.tourtravelserver.repository.ITourRepository;
-import com.example.tourtravelserver.repository.ITourScheduleRepository;
 import com.example.tourtravelserver.service.IBookingService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -28,6 +27,7 @@ public class BookingService implements IBookingService {
     private final IPaymentRepository paymentRepository;
     private final ITourRepository tourRepository;
     private final ITourScheduleRepository tourScheduleRepository;
+    private final IUserRepository userRepository;
 
     @Override
     public void createPendingTransaction(Long bookingId, String txnRef, long amount) {
@@ -95,6 +95,13 @@ public class BookingService implements IBookingService {
         TourSchedule tourSchedule = tourScheduleRepository.findById(request.getTourScheduleId())
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy TourSchedule với ID: " + request.getTourScheduleId()));
 
+//        User user = userRepository.findById(request.getUserId())
+//                .orElseThrow(() -> new RuntimeException("Không tìm thấy User với ID: " + request.getTourScheduleId()));
+
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy User với email: " + email));
+
         // Xây dựng booking
         Booking booking = Booking.builder()
                 .bookingDate(request.getBookingDate() != null ? request.getBookingDate() : LocalDateTime.now())
@@ -105,9 +112,14 @@ public class BookingService implements IBookingService {
                 .totalPrice(request.getTotalPrice() != null ? request.getTotalPrice() : BigDecimal.ZERO)
                 .status(request.getStatus() != null ? BookingStatus.valueOf(request.getStatus()) : BookingStatus.PENDING)
                 .tourSchedule(tourSchedule)
-                .userId(request.getUserId())
+                .user(user)
                 .build();
 
         return bookingRepository.save(booking);
+    }
+
+    @Override
+    public Optional<Booking> findById(Long id) {
+        return bookingRepository.findById(id);
     }
 }

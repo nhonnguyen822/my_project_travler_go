@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <style>
+        body { font-family: 'DejaVu Sans', Arial, sans-serif; color:#222; margin:0; padding:0; background:#f4f4f6; }
+        .container { max-width:700px; margin:0 auto; padding:20px; }
+        .header { background:linear-gradient(90deg,#10b981,#059669); color:white; padding:18px; border-radius:12px 12px 0 0; display:flex; justify-content:space-between; align-items:center; }
+        .logo { font-weight:700; font-size:20px; }
+        .title { font-size:16px; font-weight:600; }
+        .cover { width:100%; height:220px; object-fit:cover; margin-top:12px; border-radius:6px; }
+        .content { background:white; padding:20px; border-radius:0 0 12px 12px; }
+        h1 { font-size:22px; margin:0 0 8px 0; }
+        .meta { color:#6b7280; font-size:13px; margin-bottom:12px; }
+        .section-title { font-weight:600; margin-top:16px; margin-bottom:8px; font-size:16px; border-bottom:1px solid #e5e7eb; padding-bottom:4px; }
+        .activity { display:flex; gap:12px; margin-top:8px; }
+        .activity img { width:140px; height:90px; object-fit:cover; border-radius:6px; }
+        .activity .desc { font-size:13px; color:#333; }
+        .booking-info { margin-top:16px; }
+        .booking-info .row { display:flex; justify-content:space-between; margin-bottom:6px; }
+        .key { color:#6b7280; font-weight:600; width:120px; }
+        .value { font-weight:600; color:#374151; }
+        .qr-section { display:flex; margin-top:18px; gap:20px; }
+        .qr-section img { width:110px; height:110px; }
+        .instructions { font-size:13px; color:#374151; }
+        .footer { margin-top:24px; font-size:12px; color:#6b7280; text-align:center; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <div class="logo">TravelGo</div>
+        <div class="title">Vé điện tử - Xác nhận đặt tour</div>
+    </div>
+
+    <img th:src="${tour.image}" class="cover" alt="cover"/>
+
+    <div class="content">
+        <h1 th:text="${tour.title}">Tên tour</h1>
+        <div class="meta">
+            <span th:text="'Thời gian: ' + ${schedule.startDate} + ' - ' + ${schedule.endDate}">05/11 - 07/11</span> ·
+            <span th:text="'Số ngày: ' + ${tour.duration}">3 ngày</span>
+        </div>
+
+        <div th:each="day, idx : ${itineraryDays}">
+            <div class="section-title" th:text="'Ngày ' + (${idx.index} + 1) + ' - ' + ${day.title}">Ngày 1 - Khởi hành</div>
+            <div th:each="act : ${day.activities}" class="activity">
+                <img th:src="${act.imageUrl}" alt="act"/>
+                <div class="desc">
+                    <div style="font-weight:600" th:text="${act.title}">Hoạt động 1</div>
+                    <div style="color:#6b7280;font-size:12px" th:text="${act.time}">08:00</div>
+                    <p th:text="${act.details}">Mô tả chi tiết...</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="booking-info">
+            <div class="section-title">Thông tin đặt vé</div>
+            <div class="row"><span class="key">Mã đặt chỗ:</span> <span class="value" th:text="${booking.id}">BKG001</span></div>
+            <div class="row"><span class="key">Khách hàng:</span> <span class="value" th:text="${booking.user.name}">Tên khách</span></div>
+            <div class="row"><span class="key">Email:</span> <span class="value" th:text="${booking.user.email}">email@example.com</span></div>
+            <div class="row"><span class="key">Ngày:</span> <span class="value" th:text="${schedule.startDate}">05/11/2025</span> - <span class="value" th:text="${schedule.endDate}">07/11/2025</span></div>
+            <div class="row"><span class="key">Số người:</span> <span class="value" th:text="${booking.numberOfPeople}">1</span></div>
+            <div class="row"><span class="key">Tổng tiền:</span> <span class="value" th:text="${#numbers.formatDecimal(booking.totalPrice,0,'COMMA',0,'POINT')} + ' VND'"></span></div>
+            <div class="row"><span class="key">Trạng thái:</span> <span class="value" style="color:#059669;font-weight:700" th:text="${booking.status}">CONFIRMED</span></div>
+        </div>
+
+        <div class="qr-section">
+            <div>
+                <div style="font-size:11px;color:#6b7280">Mã QR (quét để kiểm tra vé)</div>
+                <img th:src="${qrDataUrl}" alt="QR"/>
+            </div>
+            <div class="instructions">
+                <p>Hướng dẫn:</p>
+                <ul>
+                    <li>Vui lòng mang bản in hoặc present vé trên điện thoại khi check-in.</li>
+                    <li>Liên hệ hotline: <strong>+84 123 456 789</strong> nếu cần hỗ trợ.</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="footer">
+            TravelGo • Email: support@travelgo.example • Hotline: +84 123 456 789
+        </div>
+    </div>
+</div>
+</body>
+</html>

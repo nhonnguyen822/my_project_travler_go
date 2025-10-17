@@ -3,12 +3,15 @@ package com.example.tourtravelserver.controller;
 import com.example.tourtravelserver.dto.PaymentRequest;
 import com.example.tourtravelserver.entity.Booking;
 import com.example.tourtravelserver.repository.IBookingRepository;
+import com.example.tourtravelserver.service.IBookingService;
+import com.example.tourtravelserver.service.IMailService;
 import com.example.tourtravelserver.service.impl.PaymentService;
 import com.example.tourtravelserver.service.vnpay.VNPayService;
 import com.example.tourtravelserver.util.VNPayUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
 
@@ -30,7 +33,9 @@ public class PaymentController {
 
     private final PaymentService paymentService;
     private final VNPayService vnPayService;
-    private final IBookingRepository bookingRepository;
+    private final IBookingService bookingService;
+
+    private final IMailService mailService;
 
     @Value("${app.frontend.url}")
     private String frontendUrl;
@@ -96,25 +101,28 @@ public class PaymentController {
         String status = success ? "success" : "failed";
         paymentService.handlePaymentResult(txnRef, amount, service, bookingId, status);
 
-        Optional<Booking> bookingOpt = bookingRepository.findById(bookingId);
+        Optional<Booking> bookingOpt = bookingService.findById(bookingId);
+
 
         // --- Redirect về frontend ---
         String redirectUrl;
         if (success && bookingOpt.isPresent()) {
             Booking booking = bookingOpt.get();
+            try {
+                // 👉 Gửi email xác nhận + vé đính kèm
+                mailService.sendBookingConfirmation(booking, txnRef);
+            } catch (Exception e) {
+                e.printStackTrace();
+                System.err.println("❌ Gửi email thất bại: " + e.getMessage());
+            }
 
             redirectUrl = String.format(
-                    "%s/payment-result?success=true&message=%s&amount=%d&service=%s&txnRef=%s"
-                            + "&bookingId=%d&tourName=%s&startDate=%s&numPeople=%d",
+                    "%s/payment-result?success=true&message=%s&bookingId=%d&txnRef=%s&tourId=%d",
                     frontendUrl,
-                    URLEncoder.encode("Thanh toán thành công!", StandardCharsets.UTF_8),
-                    amount,
-                    URLEncoder.encode(service, StandardCharsets.UTF_8),
-                    txnRef,
+                    URLEncoder.encode("Thanh toán thành công cho booking #" + booking.getId(), StandardCharsets.UTF_8),
                     booking.getId(),
-                    URLEncoder.encode(booking.getTourSchedule().getTour().getTitle(), StandardCharsets.UTF_8),
-                    booking.getBookingDate(),
-                    booking.getNumberOfPeople()
+                    txnRef,
+                    booking.getTourSchedule().getTour().getId()         // thêm tourId
             );
         } else {
             redirectUrl = String.format(

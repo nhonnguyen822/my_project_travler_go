@@ -41,8 +41,8 @@ public class SecurityConfig {
                 .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/auth/**",
-                                "/api/v1/plans/**", "/api/payment/vn-pay-callback").permitAll()
-                        .requestMatchers("/api/user/**", "/api/transactions","/api/bookings").hasAnyAuthority("USER", "ADMIN")
+                                "/api/tours/**", "/api/payment/vn-pay-callback","/api/regions/**","/api/tours/region/**").permitAll()
+                        .requestMatchers("/api/user/**", "/api/transactions","/api/bookings/**").hasAnyAuthority("USER", "ADMIN")
                         .requestMatchers("/api/admin/**").hasAuthority("ADMIN")
                         .anyRequest().authenticated()
                 )

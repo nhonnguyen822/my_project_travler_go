@@ -51,6 +51,14 @@ dependencies {
     implementation 'com.sun.mail:jakarta.mail:2.0.1'
 
     implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
+// OpenHTMLToPDF (convert HTML -> PDF)
+    implementation 'com.openhtmltopdf:openhtmltopdf-core:1.0.10'
+    implementation 'com.openhtmltopdf:openhtmltopdf-pdfbox:1.0.10'
+    // Nếu muốn render webfonts / images từ URL thì thêm
+    implementation 'org.apache.pdfbox:pdfbox:2.0.30'
+
+    implementation 'com.google.zxing:core:3.5.3'
+    implementation 'com.google.zxing:javase:3.5.3'
 }
 
 tasks.named('test') {

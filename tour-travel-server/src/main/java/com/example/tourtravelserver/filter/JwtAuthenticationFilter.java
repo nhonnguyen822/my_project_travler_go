@@ -44,8 +44,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         if (token != null) {
             try {
                 Claims claims = jwtService.extractAllClaims(token);
-                long remainingTime = claims.getExpiration().getTime() - System.currentTimeMillis();
-                System.out.println("Token remainingTime(ms): " + remainingTime);
                 String username = claims.getSubject();
 
                 if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
@@ -55,21 +53,21 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                     SecurityContextHolder.getContext().setAuthentication(auth);
                 }
 
-//                // Kiểm tra thời gian còn lại để refresh token
-//                long expTime = claims.getExpiration().getTime();
-//                long now = System.currentTimeMillis();
-//                long remainingTime = expTime - now;
-//
-//                if (remainingTime < 10 * 60 * 1000) { // < 10 phút
-//                    String newToken = jwtService.refreshToken(token, 30 * 60 * 1000); // 30 phút
-//                    ResponseCookie cookie = ResponseCookie.from("jwt", newToken)
-//                            .httpOnly(true)
-//                            .sameSite("Lax")
-//                            .path("/")
-//                            .maxAge(30 * 60)
-//                            .build();
-//                    response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
-//                }
+                // Kiểm tra thời gian còn lại để refresh token
+                long expTime = claims.getExpiration().getTime();
+                long now = System.currentTimeMillis();
+                long remainingTime = expTime - now;
+
+                if (remainingTime < 10 * 60 * 1000) { // < 10 phút
+                    String newToken = jwtService.refreshToken(token, 30 * 60 * 1000); // 30 phút
+                    ResponseCookie cookie = ResponseCookie.from("jwt", newToken)
+                            .httpOnly(true)
+                            .sameSite("Lax")
+                            .path("/")
+                            .maxAge(30 * 60)
+                            .build();
+                    response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
+                }
 
             } catch (ExpiredJwtException ex) {
                 clearJwtCookie(response);
