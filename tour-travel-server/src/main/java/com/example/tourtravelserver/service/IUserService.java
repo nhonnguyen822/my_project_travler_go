@@ -17,4 +17,6 @@ public interface IUserService {
 
     void resendEmailVerification(User user);
 
+    String updateAvatar(Long userId, String newAvatar) throws Exception;
+
 }

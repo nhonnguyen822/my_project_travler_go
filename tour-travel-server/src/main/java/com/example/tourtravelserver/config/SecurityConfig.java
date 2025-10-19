@@ -1,6 +1,7 @@
 package com.example.tourtravelserver.config;
 
 import com.example.tourtravelserver.filter.JwtAuthenticationFilter;
+import com.example.tourtravelserver.oauth2.CustomOAuth2SuccessHandler;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -13,6 +14,7 @@ import org.springframework.security.config.annotation.authentication.configurati
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
@@ -28,6 +30,7 @@ public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final JwtAuthEntryPoint jwtAuthEntryPoint;
+    private final CustomOAuth2SuccessHandler customOAuth2SuccessHandler;
 
     @Value("${app.frontend.url}")
     private String frontendUrl;
@@ -81,4 +84,28 @@ public class SecurityConfig {
     public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration) throws Exception {
         return configuration.getAuthenticationManager();
     }
+
+    @Bean
+    @Order(1) // ⚠️ Ưu tiên cao hơn filter chain mặc định (JWT)
+    public SecurityFilterChain oauth2LoginFilterChain(HttpSecurity http) throws Exception {
+        http
+                .securityMatcher("/oauth2/authorization/**", "/login/oauth2/code/**")
+                .csrf(csrf -> csrf.disable())
+                .authorizeHttpRequests(auth -> auth.anyRequest().permitAll())
+
+                // ⚙️ Cấu hình OAuth2 login
+                .oauth2Login(oauth -> oauth
+                        .successHandler(customOAuth2SuccessHandler)
+                        .failureHandler((request, response, exception) -> {
+                            String errorMessage = "oauth_error";
+                            if (exception instanceof OAuth2AuthenticationException) {
+                                errorMessage = "cancelled"; // user cancel login
+                            }
+                            response.sendRedirect(frontendUrl + "/login?error=" + errorMessage);
+                        })
+                );
+
+        return http.build();
+    }
+
 }

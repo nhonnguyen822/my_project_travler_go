@@ -27,6 +27,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
@@ -144,6 +145,13 @@ public class AuthController {
                     .build();
 
             response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
+//            Map<String, Object> userInfo = new HashMap<>();
+//            userInfo.put("success", true);
+//            userInfo.put("email", user.getEmail());
+//            userInfo.put("fullName", user.getName());
+//            userInfo.put("role", user.getRole().getName());
+//
+//            return ResponseEntity.ok(userInfo);
 
             return ResponseEntity.ok(Map.of("success", true));
 
@@ -169,7 +177,13 @@ public class AuthController {
         response.put("success", true);
         response.put("email", user.getEmail());
         response.put("fullName", user.getName());
+        response.put("avatar", user.getAvatar());
         return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/google")
+    public void googleLogin(HttpServletResponse response) throws IOException {
+        response.sendRedirect("/oauth2/authorization/google");
     }
 
 }

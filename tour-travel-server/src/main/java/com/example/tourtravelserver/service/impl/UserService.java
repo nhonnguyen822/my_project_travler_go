@@ -6,6 +6,7 @@ import com.example.tourtravelserver.enums.TokenType;
 import com.example.tourtravelserver.repository.IUserRepository;
 import com.example.tourtravelserver.service.IUserService;
 import com.example.tourtravelserver.service.email.EmailService;
+import com.example.tourtravelserver.util.CloudinaryService;
 import jakarta.mail.MessagingException;
 import lombok.RequiredArgsConstructor;
 
@@ -23,6 +24,7 @@ public class UserService implements IUserService {
     private final PasswordEncoder passwordEncoder;
     private final UserTokenService userTokenService;
     private final EmailService emailService;
+    private final CloudinaryService cloudinaryService;
 
     @Override
     public Optional<User> findByEmail(String email) {
@@ -77,5 +79,22 @@ public class UserService implements IUserService {
         } catch (MessagingException e) {
             throw new RuntimeException("Lỗi khi gửi email", e);
         }
+    }
+
+    @Override
+    public String updateAvatar(Long userId, String newAvatar) throws Exception {
+        Optional<User> userOptional = userRepository.findById(userId);
+        if (userOptional.isEmpty()) {
+            return null;
+        }
+
+        User user = userOptional.get();
+        if (user.getAvatar() != null) {
+            cloudinaryService.deleteImageByUrl(user.getAvatar());
+        }
+        String uploadedAvatar = cloudinaryService.uploadImageFromUrl(newAvatar);
+        user.setAvatar(uploadedAvatar);
+        userRepository.save(user);
+        return uploadedAvatar;
     }
 }
