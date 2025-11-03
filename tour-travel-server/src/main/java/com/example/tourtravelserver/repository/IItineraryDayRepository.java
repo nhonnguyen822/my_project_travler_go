@@ -12,6 +12,7 @@ public interface IItineraryDayRepository extends JpaRepository<ItineraryDay, Lon
         SELECT new com.example.tourtravelserver.dto.ItineraryDayDTO(
             d.id,
             d.dayIndex,
+            d.description,
             d.title,
             null
         )

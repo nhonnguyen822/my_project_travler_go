@@ -2,10 +2,12 @@ package com.example.tourtravelserver.service.impl;
 
 import com.example.tourtravelserver.entity.Booking;
 import com.example.tourtravelserver.entity.Payment;
+import com.example.tourtravelserver.entity.TourSchedule;
 import com.example.tourtravelserver.enums.BookingStatus;
 import com.example.tourtravelserver.enums.PaymentStatus;
 import com.example.tourtravelserver.repository.IBookingRepository;
 import com.example.tourtravelserver.repository.IPaymentRepository;
+import com.example.tourtravelserver.repository.ITourScheduleRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -15,6 +17,7 @@ public class PaymentService {
 
     private final IBookingRepository bookingRepository;
     private final IPaymentRepository paymentRepository;
+    private final ITourScheduleRepository scheduleRepository;
 
     /**
      * ✅ Xử lý kết quả thanh toán trả về từ VNPay
@@ -29,6 +32,12 @@ public class PaymentService {
         // Cập nhật trạng thái payment
         boolean success = "success".equalsIgnoreCase(status)
                 || "00".equals(status); // Một số cổng trả về mã 00 là thành công
+
+        if (success) {
+            TourSchedule tourSchedule = booking.getTourSchedule();
+            tourSchedule.setAvailableSlots(tourSchedule.getAvailableSlots() - booking.getNumberOfPeople());
+            scheduleRepository.save(tourSchedule);
+        }
 
         payment.setStatus(success ? PaymentStatus.SUCCESS : PaymentStatus.FAILED);
         paymentRepository.save(payment);

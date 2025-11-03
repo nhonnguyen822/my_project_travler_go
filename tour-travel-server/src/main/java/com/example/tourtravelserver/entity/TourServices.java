@@ -1,5 +1,6 @@
 package com.example.tourtravelserver.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -10,13 +11,16 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class TourService {
+public class TourServices {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
     @ManyToOne
     @JoinColumn(name = "tour_id", nullable = false)
+    @JsonBackReference("tour-services")
     private Tour tour;
+
     @ManyToOne
     @JoinColumn(name = "service_id", nullable = false)
     private ServiceItem serviceItem;

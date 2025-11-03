@@ -1,5 +1,6 @@
 package com.example.tourtravelserver.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -17,6 +18,7 @@ public class TourPolicy {
 
     @ManyToOne
     @JoinColumn(name = "tour_id", nullable = false)
+    @JsonBackReference("tour-policies")
     private Tour tour;
 
     @ManyToOne

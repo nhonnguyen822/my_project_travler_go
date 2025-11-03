@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <title>Xác nhận đặt tour - TravelGo</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            margin: 0;
+            padding: 40px 20px;
+            color: #2d3748;
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .email-container {
+            max-width: 680px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 24px;
+            overflow: hidden;
+            box-shadow:
+                    0 20px 60px rgba(0, 0, 0, 0.1),
+                    0 8px 32px rgba(0, 0, 0, 0.08);
+        }
+
+        .email-header {
+            background: linear-gradient(135deg, #22c55e, #16a34a);
+            color: white;
+            padding: 50px 40px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .email-header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 1px, transparent 1px);
+            background-size: 20px 20px;
+            opacity: 0.3;
+        }
+
+        .header-content {
+            position: relative;
+            z-index: 2;
+        }
+
+        .success-icon {
+            width: 80px;
+            height: 80px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            font-size: 32px;
+            backdrop-filter: blur(10px);
+        }
+
+        .email-header h1 {
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 12px;
+            letter-spacing: -0.5px;
+        }
+
+        .email-header .subtitle {
+            font-size: 18px;
+            opacity: 0.9;
+            font-weight: 400;
+        }
+
+        .email-body {
+            padding: 50px 40px;
+        }
+
+        .welcome-section {
+            background: linear-gradient(135deg, #f8fafc, #f1f5f9);
+            padding: 30px;
+            border-radius: 16px;
+            margin-bottom: 32px;
+            border: 1px solid #e2e8f0;
+            text-align: center;
+        }
+
+        .welcome-section p {
+            font-size: 16px;
+            color: #475569;
+            margin: 0;
+        }
+
+        .section {
+            margin-bottom: 40px;
+        }
+
+        .section-title {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 20px;
+            font-weight: 600;
+            color: #1e293b;
+            margin-bottom: 24px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #f1f5f9;
+        }
+
+        .section-title .icon {
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, #22c55e, #16a34a);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+        }
+
+        .info-card {
+            background: white;
+            border: 1px solid #f1f5f9;
+            border-radius: 16px;
+            padding: 32px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 24px;
+        }
+
+        .info-item {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .info-label {
+            font-size: 13px;
+            color: #64748b;
+            font-weight: 500;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .info-value {
+            font-weight: 600;
+            color: #1e293b;
+            font-size: 15px;
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+            background: #dcfce7;
+            color: #166534;
+            border: 1px solid #bbf7d0;
+        }
+
+        .tour-card {
+            background: linear-gradient(135deg, #f0f9ff, #e0f2fe);
+            border: 1px solid #bae6fd;
+            border-radius: 16px;
+            padding: 32px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .tour-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 120px;
+            height: 120px;
+            background: linear-gradient(135deg, rgba(2, 132, 199, 0.05), rgba(14, 165, 233, 0.05));
+            border-radius: 0 0 0 100px;
+        }
+
+        .tour-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: #0369a1;
+            margin-bottom: 12px;
+            line-height: 1.4;
+        }
+
+        .tour-description {
+            color: #475569;
+            margin-bottom: 24px;
+            line-height: 1.6;
+            font-size: 15px;
+        }
+
+        .price-card {
+            background: linear-gradient(135deg, #fff7ed, #ffedd5);
+            border: 1px solid #fed7aa;
+            border-radius: 16px;
+            padding: 32px;
+        }
+
+        .price-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 0;
+            border-bottom: 1px solid rgba(241, 245, 249, 0.8);
+        }
+
+        .price-row:last-child {
+            border-bottom: none;
+            font-weight: 700;
+            font-size: 18px;
+            color: #dc2626;
+            padding-top: 20px;
+            margin-top: 8px;
+            border-top: 2px solid #fed7aa;
+        }
+
+        .price-label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 500;
+        }
+
+        .price-quantity {
+            color: #64748b;
+            font-weight: 400;
+            font-size: 14px;
+        }
+
+        .price-amount {
+            font-weight: 600;
+            color: #1e293b;
+            letter-spacing: 0.3px;
+        }
+
+        .total-price {
+            font-size: 20px;
+            font-weight: 700;
+            color: #dc2626;
+            letter-spacing: 0.5px;
+        }
+
+        .attachments-card {
+            background: linear-gradient(135deg, #fafafa, #f4f4f5);
+            border: 1px solid #e4e4e7;
+            border-radius: 16px;
+            padding: 32px;
+        }
+
+        .attachment-list {
+            list-style: none;
+            margin-top: 20px;
+        }
+
+        .attachment-item {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 20px;
+            background: white;
+            border-radius: 12px;
+            margin-bottom: 12px;
+            border: 1px solid #f1f5f9;
+            transition: all 0.3s ease;
+        }
+
+        .attachment-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+            border-color: #e2e8f0;
+        }
+
+        .attachment-icon {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            color: white;
+        }
+
+        .attachment-content h4 {
+            font-weight: 600;
+            color: #1e293b;
+            margin-bottom: 4px;
+        }
+
+        .attachment-content p {
+            color: #64748b;
+            font-size: 14px;
+            margin: 0;
+        }
+
+        .contact-section {
+            background: linear-gradient(135deg, #f8fafc, #f1f5f9);
+            border-radius: 16px;
+            padding: 40px;
+            text-align: center;
+            border: 1px solid #e2e8f0;
+        }
+
+        .contact-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #1e293b;
+            margin-bottom: 16px;
+        }
+
+        .contact-info {
+            display: flex;
+            justify-content: center;
+            gap: 32px;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+        }
+
+        .contact-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #475569;
+            font-weight: 500;
+        }
+
+        .btn-primary {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: linear-gradient(135deg, #22c55e, #16a34a);
+            color: white;
+            padding: 16px 32px;
+            border-radius: 12px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 15px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(34, 197, 94, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(34, 197, 94, 0.4);
+        }
+
+        .signature {
+            text-align: center;
+            margin-top: 40px;
+            padding-top: 32px;
+            border-top: 1px solid #f1f5f9;
+        }
+
+        .signature p {
+            color: #64748b;
+            margin-bottom: 8px;
+        }
+
+        .company-name {
+            font-weight: 700;
+            color: #1e293b;
+            font-size: 16px;
+        }
+
+        .email-footer {
+            background: #1e293b;
+            color: #94a3b8;
+            padding: 32px 40px;
+            text-align: center;
+        }
+
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 24px;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+        }
+
+        .footer-links a {
+            color: #94a3b8;
+            text-decoration: none;
+            font-size: 14px;
+            transition: color 0.3s ease;
+        }
+
+        .footer-links a:hover {
+            color: #e2e8f0;
+        }
+
+        .copyright {
+            font-size: 12px;
+            opacity: 0.8;
+        }
+
+        @media (max-width: 600px) {
+            body {
+                padding: 20px 16px;
+            }
+
+            .email-header {
+                padding: 40px 24px;
+            }
+
+            .email-body {
+                padding: 32px 24px;
+            }
+
+            .info-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+
+            .contact-info {
+                flex-direction: column;
+                gap: 16px;
+            }
+
+            .footer-links {
+                flex-direction: column;
+                gap: 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="email-container">
+    <!-- Header -->
+    <div class="email-header">
+        <div class="header-content">
+            <div class="success-icon">✓</div>
+            <h1>Đặt Tour Thành Công!</h1>
+            <p class="subtitle" th:if="${booking}">
+                Mã booking: <strong th:text="${booking.id}">#123</strong> •
+                Khách hàng: <strong th:text="${customerName}">Quý khách</strong>
+            </p>
+        </div>
+    </div>
+
+    <!-- Body -->
+    <div class="email-body">
+        <!-- Welcome Message -->
+        <div class="welcome-section">
+            <p th:utext="${messageBody}">Cảm ơn bạn đã đặt tour tại TravelGo! Chúng tôi rất vui được đồng hành cùng bạn trong chuyến đi sắp tới.</p>
+        </div>
+
+        <!-- Booking Information -->
+        <div class="section">
+            <div class="section-title">
+                <div class="icon">📋</div>
+                <span>THÔNG TIN ĐẶT TOUR</span>
+            </div>
+            <div class="info-card">
+                <div class="info-grid">
+                    <div class="info-item">
+                        <span class="info-label">Khách hàng :</span>
+                        <span class="info-value" th:text="${customerName}">Quý khách</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Email :</span>
+                        <span class="info-value" th:text="${booking.user.email}">customer@example.com</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Số điện thoại :</span>
+                        <span class="info-value" th:text="${booking.user.phone ?: 'Chưa cập nhật'}">Chưa cập nhật</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Trạng thái :</span>
+                        <span class="status-badge">
+        <span th:text="${booking.status.statusIcon}"></span>
+        <span th:text="${booking.status.vietnameseStatus}"></span>
+    </span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Ngày đặt :"</span>
+                        <span class="info-value" th:text="${#temporals.format(booking.bookingDate, 'dd/MM/yyyy HH:mm')}">01/12/2024 10:30</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Số lượng khách :"</span>
+                        <span class="info-value"
+                              th:text="${booking.numberOfPeople + ' khách (' + booking.adultCount + ' người lớn' + (booking.childCount > 0 ? ', ' + booking.childCount + ' trẻ em' : '') + (booking.babyCount > 0 ? ', ' + booking.babyCount + ' em bé' : '') + ')'}">
+                                2 khách (2 người lớn)
+                            </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+<!--        &lt;!&ndash; Tour Information &ndash;&gt;-->
+<!--        <div class="section">-->
+<!--            <div class="section-title">-->
+<!--                <div class="icon">🏝️</div>-->
+<!--                <span>THÔNG TIN TOUR</span>-->
+<!--            </div>-->
+<!--            <div class="tour-card">-->
+<!--                <div class="tour-title" th:text="${tour.title}">Khám Phá Phú Quốc - Đảo Ngọc Của Việt Nam</div>-->
+<!--                <div class="tour-description" th:text="${tour.description}">-->
+<!--                    Trải nghiệm trọn vẹn vẻ đẹp của đảo ngọc Phú Quốc với những bãi biển cát trắng, làng chài xinh đẹp và ẩm thực hải sản tươi ngon.-->
+<!--                </div>-->
+<!--                <div class="info-grid">-->
+<!--                    <div class="info-item">-->
+<!--                        <span class="info-label">Điểm đến</span>-->
+<!--                        <span class="info-value" th:text="${tour.destination}">Phú Quốc</span>-->
+<!--                    </div>-->
+<!--                    <div class="info-item">-->
+<!--                        <span class="info-label">Thời lượng</span>-->
+<!--                        <span class="info-value" th:text="${tour.duration + ' ngày'}">2 ngày</span>-->
+<!--                    </div>-->
+<!--                    <div class="info-item" th:if="${schedule}">-->
+<!--                        <span class="info-label">Ngày khởi hành</span>-->
+<!--                        <span class="info-value" th:text="${#temporals.format(schedule.startDate, 'dd/MM/yyyy')}">30/10/2025</span>-->
+<!--                    </div>-->
+<!--                    <div class="info-item" th:if="${schedule}">-->
+<!--                        <span class="info-label">Ngày kết thúc</span>-->
+<!--                        <span class="info-value" th:text="${#temporals.format(schedule.endDate, 'dd/MM/yyyy')}">31/10/2025</span>-->
+<!--                    </div>-->
+<!--                </div>-->
+<!--            </div>-->
+<!--        </div>-->
+
+<!--        &lt;!&ndash; Price Summary &ndash;&gt;-->
+<!--        <div class="section">-->
+<!--            <div class="section-title">-->
+<!--                <div class="icon">💰</div>-->
+<!--                <span>TỔNG QUAN GIÁ</span>-->
+<!--            </div>-->
+<!--            <div class="price-card">-->
+<!--                <div class="price-row">-->
+<!--                    <div class="price-label">-->
+<!--                        <span>Người lớn</span>-->
+<!--                        <span class="price-quantity">× <span th:text="${booking.adultCount}">1</span></span>-->
+<!--                    </div>-->
+<!--                    <span class="price-amount" th:text="${adultPrice}">2,500,000 ₫</span>-->
+<!--                </div>-->
+<!--                <div class="price-row" th:if="${booking.childCount > 0}">-->
+<!--                    <div class="price-label">-->
+<!--                        <span>Trẻ em</span>-->
+<!--                        <span class="price-quantity">× <span th:text="${booking.childCount}">1</span></span>-->
+<!--                    </div>-->
+<!--                    <span class="price-amount" th:text="${childPrice}">1,200,000 ₫</span>-->
+<!--                </div>-->
+<!--                <div class="price-row" th:if="${booking.babyCount > 0}">-->
+<!--                    <div class="price-label">-->
+<!--                        <span>Em bé</span>-->
+<!--                        <span class="price-quantity">× <span th:text="${booking.babyCount}">0</span></span>-->
+<!--                    </div>-->
+<!--                    <span class="price-amount" th:text="${babyPrice}">0 ₫</span>-->
+<!--                </div>-->
+<!--                <div class="price-row">-->
+<!--                    <span><strong>Tổng cộng</strong></span>-->
+<!--                    <span class="total-price" th:text="${totalPrice}">2,500,000 ₫</span>-->
+<!--                </div>-->
+<!--            </div>-->
+<!--        </div>-->
+
+        <!-- Attachments -->
+        <div class="section">
+            <div class="section-title">
+                <div class="icon">📎</div>
+                <span>TÀI LIỆU ĐÍNH KÈM</span>
+            </div>
+            <div class="attachments-card">
+                <p>Vui lòng kiểm tra kỹ các file PDF quan trọng cho chuyến đi:</p>
+                <ul class="attachment-list">
+                    <li class="attachment-item">
+                        <div class="attachment-icon">🎫</div>
+                        <div class="attachment-content">
+                            <h4>Vé Tour & Hướng Dẫn Du Lịch</h4>
+                            <p>Vui lòng xuất trình khi tham gia tour và làm theo hướng dẫn chi tiết</p>
+                        </div>
+                    </li>
+                    <li class="attachment-item">
+                        <div class="attachment-icon">📋</div>
+                        <div class="attachment-content">
+                            <h4>Chi Tiết Booking & Chính Sách</h4>
+                            <p>Thông tin lịch trình, dịch vụ, chính sách hủy tour và điều khoản chi tiết</p>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Contact & Support -->
+        <div class="contact-section">
+            <div class="contact-title">🌟 Chúc bạn có chuyến đi tràn đầy niềm vui!</div>
+            <p style="margin-bottom: 24px; color: #64748b;">Mọi thắc mắc xin liên hệ đội ngũ hỗ trợ của chúng tôi</p>
+
+            <div class="contact-info">
+                <div class="contact-item">
+                    <span>📞</span>
+                    <span>+84 28 7108 8888</span>
+                </div>
+                <div class="contact-item">
+                    <span>📧</span>
+                    <span>support@travelgo.vn</span>
+                </div>
+                <div class="contact-item">
+                    <span>🕒</span>
+                    <span>8:00 - 22:00 (Thứ 2 - Chủ Nhật)</span>
+                </div>
+            </div>
+
+            <a th:href="${frontendUrl + '/support'}" class="btn-primary">
+                <span>📧</span>
+                <span>Liên hệ hỗ trợ ngay</span>
+            </a>
+        </div>
+
+        <!-- Signature -->
+        <div class="signature">
+            <p>Trân trọng,</p>
+            <p class="company-name">Đội ngũ <span th:text="${appName}">TravelGo</span></p>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="email-footer">
+        <div class="footer-links">
+            <a th:href="${frontendUrl}">Trang chủ</a>
+            <a th:href="${frontendUrl + '/tours'}">Tour du lịch</a>
+            <a th:href="${frontendUrl + '/about'}">Về chúng tôi</a>
+            <a th:href="${frontendUrl + '/contact'}">Liên hệ</a>
+        </div>
+        <p class="copyright">
+            © 2025 <span th:text="${appName}">TravelGo</span>. Mọi quyền được bảo lưu.<br>
+            Đây là email tự động, vui lòng không trả lời email này.
+        </p>
+    </div>
+</div>
+</body>
+</html>

@@ -28,6 +28,4 @@ public class RegionController {
         return new ResponseEntity<>(regionList, HttpStatus.OK);
 
     }
-
-
 }

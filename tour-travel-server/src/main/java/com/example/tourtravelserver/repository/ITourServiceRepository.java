@@ -3,20 +3,29 @@ package com.example.tourtravelserver.repository;
 
 import com.example.tourtravelserver.dto.ServiceDTO;
 
-import com.example.tourtravelserver.entity.TourService;
+import com.example.tourtravelserver.entity.TourServices;
+import jakarta.transaction.Transactional;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 
-public interface ITourServiceRepository extends JpaRepository<TourService,Long> {
+public interface ITourServiceRepository extends JpaRepository<TourServices,Long> {
     @Query("""
                 SELECT new com.example.tourtravelserver.dto.ServiceDTO(
                     s.id, s.name, s.type
                 )
-                FROM TourService ts
+                FROM TourServices ts
                 JOIN ts.serviceItem s
                 WHERE ts.tour.id = :tourId
             """)
     List<ServiceDTO> findServicesByTourId(Long tourId);
+
+    @Modifying
+    @Transactional
+    @Query("DELETE FROM TourServices ts WHERE ts.tour.id = :tourId")
+    void deleteAllByTourId(@Param("tourId") Long tourId);
+
 }

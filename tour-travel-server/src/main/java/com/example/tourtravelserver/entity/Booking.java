@@ -22,12 +22,18 @@ public class Booking {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(unique = true, nullable = false, updatable = false)
+    private String bookingCode;
+
     private LocalDateTime bookingDate;
     private int numberOfPeople;
     private int adultCount;
     private int childCount;
     private int babyCount;
     private BigDecimal totalPrice;
+
+    private String notes;
+    private String cancelReason;
 
     @Enumerated(EnumType.STRING)
     private BookingStatus status;
@@ -40,4 +46,16 @@ public class Booking {
     @JoinColumn(name = "tour_schedule_id")
     private TourSchedule tourSchedule;
 
+
+    @PrePersist
+    public void generateBookingCode() {
+        if (this.bookingCode == null) {
+            String timestamp = String.valueOf(System.currentTimeMillis());
+            String random = String.valueOf((int) (Math.random() * 1000));
+            this.bookingCode = "BK" + timestamp.substring(timestamp.length() - 8) + random;
+        }
+        if (this.bookingDate == null) {
+            this.bookingDate = LocalDateTime.now();
+        }
+    }
 }

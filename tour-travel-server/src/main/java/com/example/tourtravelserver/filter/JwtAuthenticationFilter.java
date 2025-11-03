@@ -94,4 +94,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 .build();
         response.addHeader(HttpHeaders.SET_COOKIE, clearCookie.toString());
     }
+
+    @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
+        String path = request.getRequestURI();
+        // bỏ qua endpoint gửi mail
+        return path.startsWith("/api/mail/send-booking");
+    }
 }

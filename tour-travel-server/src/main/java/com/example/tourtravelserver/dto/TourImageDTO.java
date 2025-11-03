@@ -1,5 +1,6 @@
 package com.example.tourtravelserver.dto;
 
+import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 
 @Getter
@@ -8,5 +9,7 @@ import lombok.*;
 @AllArgsConstructor
 @Builder
 public class TourImageDTO {
+    private Long id;
+    @NotBlank(message = "URL ảnh không được để trống")
     private String imageUrl;
 }

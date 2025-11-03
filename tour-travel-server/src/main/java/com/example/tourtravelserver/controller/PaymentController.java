@@ -108,13 +108,13 @@ public class PaymentController {
         String redirectUrl;
         if (success && bookingOpt.isPresent()) {
             Booking booking = bookingOpt.get();
-            try {
-                // 👉 Gửi email xác nhận + vé đính kèm
-                mailService.sendBookingConfirmation(booking, txnRef);
-            } catch (Exception e) {
-                e.printStackTrace();
-                System.err.println("❌ Gửi email thất bại: " + e.getMessage());
-            }
+//            try {
+//                // 👉 Gửi email xác nhận + vé đính kèm
+//                mailService.sendBookingConfirmation(booking, txnRef);
+//            } catch (Exception e) {
+//                e.printStackTrace();
+//                System.err.println("❌ Gửi email thất bại: " + e.getMessage());
+//            }
 
             redirectUrl = String.format(
                     "%s/payment-result?success=true&message=%s&bookingId=%d&txnRef=%s&tourId=%d",

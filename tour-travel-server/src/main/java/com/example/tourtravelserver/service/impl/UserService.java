@@ -4,12 +4,11 @@ import com.example.tourtravelserver.entity.User;
 import com.example.tourtravelserver.entity.UserToken;
 import com.example.tourtravelserver.enums.TokenType;
 import com.example.tourtravelserver.repository.IUserRepository;
+import com.example.tourtravelserver.service.IMailService;
 import com.example.tourtravelserver.service.IUserService;
-import com.example.tourtravelserver.service.email.EmailService;
 import com.example.tourtravelserver.util.CloudinaryService;
 import jakarta.mail.MessagingException;
 import lombok.RequiredArgsConstructor;
-
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,7 +22,7 @@ public class UserService implements IUserService {
     private final IUserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final UserTokenService userTokenService;
-    private final EmailService emailService;
+    private final IMailService emailService;
     private final CloudinaryService cloudinaryService;
 
     @Override

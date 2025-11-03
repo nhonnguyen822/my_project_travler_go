@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -21,5 +22,10 @@ public class RegionService implements IRegionService {
     public List<Region> getAllRegions() {
         return regionRepository.findAll();
 
+    }
+
+    @Override
+    public Optional<Region> findById(Long id) {
+        return regionRepository.findById(id);
     }
 }

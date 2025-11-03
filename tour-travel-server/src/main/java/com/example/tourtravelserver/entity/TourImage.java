@@ -1,5 +1,6 @@
 package com.example.tourtravelserver.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -22,5 +23,6 @@ public class TourImage {
 
     @ManyToOne
     @JoinColumn(name = "tour_id")
+    @JsonBackReference
     private Tour tour;
 }

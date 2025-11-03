@@ -120,7 +120,8 @@ public class AuthController {
             User user = (User) authentication.getPrincipal();
 
             // Bước 2: Kiểm tra trạng thái tài khoản
-            if (!Boolean.TRUE.equals(user.getEmailVerification())) {
+            if (!Boolean.TRUE.equals(user.getEmailVerification())
+                    && !"ADMIN".equals(user.getRole().getName())) {
                 userService.resendEmailVerification(user);
                 return ResponseEntity.status(403)
                         .body(Map.of("success", false, "error", "EMAIL_NOT_VERIFIED"));
@@ -145,15 +146,15 @@ public class AuthController {
                     .build();
 
             response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
-//            Map<String, Object> userInfo = new HashMap<>();
-//            userInfo.put("success", true);
-//            userInfo.put("email", user.getEmail());
-//            userInfo.put("fullName", user.getName());
-//            userInfo.put("role", user.getRole().getName());
-//
-//            return ResponseEntity.ok(userInfo);
 
-            return ResponseEntity.ok(Map.of("success", true));
+            Map<String, Object> userInfo = new HashMap<>();
+            userInfo.put("success", true);
+            userInfo.put("email", user.getEmail());
+            userInfo.put("fullName", user.getName());
+            userInfo.put("avatar", user.getAvatar());
+            userInfo.put("role", user.getRole().getName()); // <-- thêm role
+
+            return ResponseEntity.ok(userInfo);
 
         } catch (BadCredentialsException e) {
             return ResponseEntity.status(401)
@@ -178,6 +179,7 @@ public class AuthController {
         response.put("email", user.getEmail());
         response.put("fullName", user.getName());
         response.put("avatar", user.getAvatar());
+        response.put("role", user.getRole().getName());
         return ResponseEntity.ok(response);
     }
 

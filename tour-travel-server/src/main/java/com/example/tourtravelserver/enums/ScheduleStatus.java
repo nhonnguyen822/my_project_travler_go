@@ -1,5 +1,7 @@
 package com.example.tourtravelserver.enums;
 
 public enum ScheduleStatus {
-    UPCOMING, FULLY_BOOKED, CANCELLED, COMPLETED
+    ACTIVE,        // Có thể đặt tour (bao gồm cả UPCOMING và ONGOING)
+    COMPLETED,     // Đã kết thúc
+    CANCELLED
 }

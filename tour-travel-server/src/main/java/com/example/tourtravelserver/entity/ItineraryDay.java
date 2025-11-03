@@ -3,10 +3,7 @@ package com.example.tourtravelserver.entity;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.util.List;
 
@@ -15,6 +12,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
+@Builder
 @Table(name = "itinerary_days",
         indexes = {@Index(name = "idx_itinerary_day_tour_dayindex", columnList = "tour_id, day_index")})
 public class ItineraryDay {
@@ -31,6 +29,7 @@ public class ItineraryDay {
 
     @Column(columnDefinition = "TEXT")
     private String description;
+
 
     @ManyToOne
     @JoinColumn(name = "tour_id")

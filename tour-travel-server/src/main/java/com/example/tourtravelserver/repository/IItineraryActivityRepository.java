@@ -9,16 +9,17 @@ import java.util.List;
 
 public interface IItineraryActivityRepository extends JpaRepository<ItineraryActivity, Long> {
     @Query("""
-    SELECT new com.example.tourtravelserver.dto.ActivityDTO(
-        a.time,
-        a.title,
-        a.details,
-        a.imageUrl,
-        a.position
-    )
-    FROM ItineraryActivity a
-    WHERE a.itineraryDay.id = :dayId
-    ORDER BY a.position ASC, a.time ASC
-""")
+                SELECT new com.example.tourtravelserver.dto.ActivityDTO(
+                a.id,
+                    a.time,
+                    a.title,
+                    a.details,
+                    a.imageUrl,
+                    a.position
+                )
+                FROM ItineraryActivity a
+                WHERE a.itineraryDay.id = :dayId
+                ORDER BY a.position ASC, a.time ASC
+            """)
     List<ActivityDTO> findActivitiesByDayId(Long dayId);
 }

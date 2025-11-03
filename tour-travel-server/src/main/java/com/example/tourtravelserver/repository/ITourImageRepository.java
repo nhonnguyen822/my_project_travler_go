@@ -8,7 +8,7 @@ import org.springframework.data.jpa.repository.Query;
 import java.util.List;
 
 public interface ITourImageRepository extends JpaRepository<TourImage, Long> {
-    @Query("SELECT new com.example.tourtravelserver.dto.TourImageDTO(t.imageUrl) " +
+    @Query("SELECT new com.example.tourtravelserver.dto.TourImageDTO(t.id,t.imageUrl) " +
             "FROM TourImage t " +
             "WHERE t.tour.id = :tourId " +
             "ORDER BY t.id ASC")

@@ -2,10 +2,7 @@ package com.example.tourtravelserver.entity;
 
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -20,6 +17,7 @@ import java.util.List;
 @AllArgsConstructor
 @Entity
 @Table(name = "users")
+@Builder
 public class User implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -29,6 +27,8 @@ public class User implements UserDetails {
     @Column(nullable = false, unique = true)
     private String email;
     private String password;
+    @Column(name = "phone")
+    private String phone;
 
     @Column(columnDefinition = "TEXT")
     private String avatar;
@@ -66,6 +66,7 @@ public class User implements UserDetails {
     public String getPassword() {
         return password;
     }
+
     @Override
     public boolean isAccountNonExpired() {
         return true;
