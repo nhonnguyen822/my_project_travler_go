@@ -1,6 +1,7 @@
 package com.example.tourtravelserver.controller.auth;
 
 
+import com.example.tourtravelserver.dto.CustomerResponse;
 import com.example.tourtravelserver.entity.Role;
 import com.example.tourtravelserver.entity.User;
 import com.example.tourtravelserver.entity.UserToken;
@@ -186,6 +187,26 @@ public class AuthController {
     @GetMapping("/google")
     public void googleLogin(HttpServletResponse response) throws IOException {
         response.sendRedirect("/oauth2/authorization/google");
+    }
+
+    @GetMapping("/users/email/{email}")
+    public ResponseEntity<?> getUserByEmail(@PathVariable String email) {
+        try {
+            Optional<User> userOpt = userService.findByEmail(email);
+            if (userOpt.isEmpty()) {
+                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            }
+            System.out.println(userOpt.get());
+            return new ResponseEntity<>(userOpt.get(), HttpStatus.OK);
+
+        } catch (Exception e) {
+            log.error("❌ Lỗi khi tìm user với email {}: {}", email, e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of(
+                            "success", false,
+                            "error", "Lỗi server khi tìm kiếm user: " + e.getMessage()
+                    ));
+        }
     }
 
 }

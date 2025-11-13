@@ -19,7 +19,6 @@ public class AdminBookingResponse {
     private String status;
     private LocalDateTime bookingDate;
     private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
 }
 
 

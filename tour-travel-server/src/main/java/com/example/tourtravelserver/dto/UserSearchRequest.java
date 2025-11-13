@@ -8,9 +8,10 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class UserResponse {
-    private String name;
-    private String email;
-    private String phone;
-    private String avatar;
+public class UserSearchRequest {
+    private String search;
+    private CustomerType customerType;
+    private Boolean status;
+    private int page = 0;
+    private int size = 10;
 }

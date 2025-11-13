@@ -2,6 +2,7 @@ package com.example.tourtravelserver.oauth2;
 
 import com.example.tourtravelserver.entity.Role;
 import com.example.tourtravelserver.entity.User;
+import com.example.tourtravelserver.enums.CustomerType;
 import com.example.tourtravelserver.security.jwt.service.JwtService;
 import com.example.tourtravelserver.service.IRoleService;
 import com.example.tourtravelserver.service.IUserService;
@@ -80,7 +81,10 @@ public class CustomOAuth2SuccessHandler implements AuthenticationSuccessHandler 
             user.setAccessToken(accessToken);
             user.setRefreshToken(refreshToken);
             user.setAccessTokenExpiry(accessTokenExpiry);
+            user.setCustomerCode(user.generateCustomerCode());
             user.setStatus(true);
+            user.setCustomerType(CustomerType.REGULAR);
+            user.setEmailVerification(true);
 
             // Gán role mặc định
             Optional<Role> userRole = roleService.findByName("USER");
@@ -102,7 +106,6 @@ public class CustomOAuth2SuccessHandler implements AuthenticationSuccessHandler 
             user = userService.save(user);
         }
 
-        // ❌ Nếu user bị khóa
         if (!user.getStatus()) {
             response.sendRedirect(frontendUrl + "/login?error=ACCOUNT_DISABLED");
             return;
@@ -123,8 +126,6 @@ public class CustomOAuth2SuccessHandler implements AuthenticationSuccessHandler 
                 .build();
 
         response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
-
-        // ✅ Redirect về frontend
         response.sendRedirect(frontendUrl + "/oauth2/success");
     }
 }

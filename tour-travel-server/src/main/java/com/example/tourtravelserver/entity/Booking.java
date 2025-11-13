@@ -30,7 +30,7 @@ public class Booking {
     private int adultCount;
     private int childCount;
     private int babyCount;
-    private BigDecimal totalPrice;
+    private BigDecimal paidAmount;
 
     private String notes;
     private String cancelReason;
@@ -45,7 +45,6 @@ public class Booking {
     @ManyToOne
     @JoinColumn(name = "tour_schedule_id")
     private TourSchedule tourSchedule;
-
 
     @PrePersist
     public void generateBookingCode() {

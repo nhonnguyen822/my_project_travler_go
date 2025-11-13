@@ -23,9 +23,6 @@ public class TourSchedule {
 
     private LocalDate startDate;
     private LocalDate endDate;
-
-    private Integer availableSlots;
-
     private BigDecimal price;
     private BigDecimal childPrice;
     private BigDecimal babyPrice;

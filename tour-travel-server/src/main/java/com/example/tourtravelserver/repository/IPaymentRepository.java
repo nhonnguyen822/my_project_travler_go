@@ -10,5 +10,7 @@ import java.util.Optional;
 public interface IPaymentRepository extends JpaRepository<Payment, Long> {
     @Query(value = "SELECT * FROM payments p WHERE p.transaction_code = :txnCode", nativeQuery = true)
     Optional<Payment> findByTransactionCode(@Param("txnCode") String txnCode);
-    // methods here
+
+    @Query(value = "SELECT * FROM payments WHERE booking_id = :bookingId LIMIT 1", nativeQuery = true)
+    Optional<Payment> findByBookingId(Long bookingId);
 }

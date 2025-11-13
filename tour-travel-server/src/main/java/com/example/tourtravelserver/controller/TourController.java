@@ -102,7 +102,6 @@ public class TourController {
             BindingResult bindingResult
     ) {
         try {
-            // Kiểm tra lỗi validation cơ bản
             if (bindingResult.hasErrors()) {
                 Map<String, String> errors = new HashMap<>();
                 bindingResult.getFieldErrors().forEach(error ->
@@ -179,15 +178,12 @@ public class TourController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body(Map.of("message", "Không tìm thấy tour với ID: " + id));
         }
-
-        // Kiểm tra xem tour có schedule đang hoạt động không
         int activeScheduleCount = tourService.countActiveTourSchedules(id);
         if (activeScheduleCount > 0) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(Map.of("message", "Không thể xóa tour vì còn " + activeScheduleCount + " lịch trình đang hoạt động"));
         }
 
-        // Nếu không có schedule nào đang hoạt động, tiến hành xóa
         Optional<Tour> tourDelete = tourService.softDeleteAndGetTour(id);
         if (tourDelete.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
@@ -198,5 +194,19 @@ public class TourController {
                 "message", "Đã xóa tour thành công",
                 "tour", tourDelete.get()
         ));
+    }
+
+    @GetMapping("/active")
+    public ResponseEntity<?> getActiveTours() {
+        try {
+            List<Tour> activeTours = tourService.getActiveTours();
+            if (activeTours.isEmpty()) {
+                return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+            }
+            return new ResponseEntity<>(activeTours, HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>("Lỗi khi lấy danh sách tour: " + e.getMessage(),
+                    HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 }

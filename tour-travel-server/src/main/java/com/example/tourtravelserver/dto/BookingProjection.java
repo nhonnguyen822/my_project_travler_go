@@ -11,7 +11,7 @@ public interface BookingProjection {
     Integer getAdultCount();
     Integer getChildCount();
     Integer getBabyCount();
-    BigDecimal getTotalPrice();
+    BigDecimal getPaidAmount();
     String getStatus();
 
     // Từ bảng users (alias trong query)

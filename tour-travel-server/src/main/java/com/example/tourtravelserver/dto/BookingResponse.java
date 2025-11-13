@@ -15,6 +15,7 @@ public class BookingResponse {
     private String bookingCode;
     private LocalDate bookingDate;
     private Integer numberOfPeople;
+    private BigDecimal paidAmount;
     private Integer adultCount;
     private Integer childCount;
     private Integer babyCount;

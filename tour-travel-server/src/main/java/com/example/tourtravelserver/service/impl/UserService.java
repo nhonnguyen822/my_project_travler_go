@@ -1,21 +1,29 @@
 package com.example.tourtravelserver.service.impl;
 
+import com.example.tourtravelserver.dto.*;
 import com.example.tourtravelserver.entity.User;
 import com.example.tourtravelserver.entity.UserToken;
+import com.example.tourtravelserver.enums.CustomerType;
 import com.example.tourtravelserver.enums.TokenType;
+import com.example.tourtravelserver.repository.IBookingRepository;
 import com.example.tourtravelserver.repository.IUserRepository;
 import com.example.tourtravelserver.service.IMailService;
 import com.example.tourtravelserver.service.IUserService;
 import com.example.tourtravelserver.util.CloudinaryService;
 import jakarta.mail.MessagingException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
+import java.util.Random;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class UserService implements IUserService {
@@ -49,6 +57,11 @@ public class UserService implements IUserService {
     @Transactional
     public void register(User user) {
         try {
+            if (user.getCustomerCode() == null || user.getCustomerCode().isEmpty()) {
+                String customerCode = user.generateCustomerCode();
+                user.setCustomerCode(customerCode);
+            }
+            user.setCustomerType(CustomerType.NEW);
             User savedUser = save(user);
             String token = userTokenService.generateToken(savedUser, TokenType.EMAIL_VERIFICATION);
             emailService.sendUserVerificationEmail(savedUser.getEmail(), savedUser.getName(), token);
@@ -57,22 +70,18 @@ public class UserService implements IUserService {
         }
     }
 
+
     @Override
     public void resendEmailVerification(User user) {
         UserToken userToken = userTokenService.findByUserAndType(user, TokenType.EMAIL_VERIFICATION)
                 .get();
-//                .orElseThrow(() -> new RuntimeException("Không tìm thấy token"));
 
         LocalDateTime now = LocalDateTime.now();
 
-        // Nếu token vẫn còn hạn trên 10 phút thì không gửi lại
         if (userToken.getExpiresAt().isAfter(now.plusMinutes(10))) {
-//            throw new RuntimeException("Token vẫn còn hạn, chưa cần gửi lại");
             return;
         }
-
         try {
-            // Tạo token mới
             String newToken = userTokenService.generateToken(user, TokenType.EMAIL_VERIFICATION);
             emailService.sendUserVerificationEmail(user.getEmail(), user.getName(), newToken);
         } catch (MessagingException e) {
@@ -96,4 +105,143 @@ public class UserService implements IUserService {
         userRepository.save(user);
         return uploadedAvatar;
     }
+
+    @Override
+    public Page<UserDTO> getUsers(UserSearchRequest request, Pageable pageable) {
+        return null;
+    }
+
+    @Override
+    public Page<CustomerResponse> getAllCustomers(Pageable pageable, String search, CustomerType customerType, Boolean status) {
+        try {
+            String searchTerm = (search != null && !search.trim().isEmpty())
+                    ? search.trim()
+                    : "";
+            String type = (customerType != null)
+                    ? customerType.name()
+                    : null;
+
+            Integer statusValue;
+
+            Page<User> customersPage;
+            if (status == null) {
+                statusValue = null;
+            } else {
+                statusValue = status ? 1 : 0;
+            }
+            if (type == null && statusValue == null) {
+                customersPage = userRepository.findBySearchCustomerTypeByNullAndStatusByNull(searchTerm, pageable);
+            } else if (statusValue == null && type != null) {
+                customersPage = userRepository.findBySearchStatusByNull(searchTerm, type, pageable);
+            } else if (type == null && statusValue != null) {
+                customersPage = userRepository.findBySearchCustomerTypeByNull(searchTerm, statusValue, pageable);
+            } else {
+                customersPage = userRepository.findBySearchCriteria(searchTerm, type, statusValue, pageable);
+            }
+
+            System.out.println(customersPage);
+            return customersPage.map(this::mapToCustomerResponse);
+        } catch (Exception e) {
+            throw new RuntimeException("Lỗi khi tải danh sách khách hàng");
+        }
+    }
+
+    @Override
+    public CustomerResponse getCustomerById(Long id) {
+        User customer = userRepository.findById(id)
+                .orElseThrow(() -> {
+                    return new RuntimeException("Không tìm thấy khách hàng với ID: " + id);
+                });
+
+        return mapToCustomerResponse(customer);
+    }
+
+    @Override
+    @Transactional
+    public CustomerResponse updateCustomerStatus(Long id, Boolean status) {
+        User customer = userRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy khách hàng với ID: " + id));
+        Long activeBookingCount = userRepository.countBookingActivesByUserId(customer.getId());
+
+        if (activeBookingCount > 0) {
+            throw new RuntimeException(
+                    String.format(
+                            "Không thể thay đổi loại khách hàng cho %s. Hiện có %d booking đang hoạt động. ",
+                            customer.getName(), activeBookingCount
+                    )
+            );
+        }
+
+        customer.setStatus(status);
+        customer.setUpdatedAt(LocalDateTime.now());
+        User savedCustomer = userRepository.save(customer);
+
+        return mapToCustomerResponse(savedCustomer);
+    }
+
+    @Override
+    @Transactional
+    public CustomerResponse updateCustomerType(Long id, CustomerType customerType) {
+        User customer = userRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy khách hàng với ID: " + id));
+
+
+        customer.setCustomerType(customerType);
+        customer.setUpdatedAt(LocalDateTime.now());
+
+        User savedCustomer = userRepository.save(customer);
+
+        return mapToCustomerResponse(savedCustomer);
+    }
+
+    @Override
+    public CustomerStats getCustomerStats() {
+        try {
+            long totalCustomers = userRepository.count();
+            long activeCustomers = userRepository.countByStatus(true);
+            long regularCustomers = userRepository.countByCustomerType(CustomerType.REGULAR);
+            long vipCustomers = userRepository.countByCustomerType(CustomerType.VIP);
+
+            CustomerStats stats = CustomerStats.builder()
+                    .totalCustomers(totalCustomers)
+                    .activeCustomers(activeCustomers)
+                    .inactiveCustomers(totalCustomers - activeCustomers)
+                    .regularCustomers(regularCustomers)
+                    .vipCustomers(vipCustomers)
+                    .build();
+            return stats;
+        } catch (Exception e) {
+            throw new RuntimeException("Lỗi khi tải thống kê khách hàng");
+        }
+    }
+
+    @Override
+    public Optional<CustomerResponse> getCustomerByEmail(String email) {
+        return userRepository.findByEmailAndRoleName(email, "USER")
+                .map(this::mapToCustomerResponse);
+    }
+
+
+
+    private CustomerResponse mapToCustomerResponse(User user) {
+        Long totalBookings = userRepository.countBookingsByUserId(user.getId());
+        return CustomerResponse.builder()
+                .id(user.getId())
+                .name(user.getName())
+                .email(user.getEmail())
+                .phone(user.getPhone())
+                .avatar(user.getAvatar())
+                .customerCode(user.getCustomerCode())
+                .dateOfBirth(user.getDateOfBirth())
+                .identityNumber(user.getIdentityNumber())
+                .address(user.getAddress())
+                .customerType(user.getCustomerType())
+                .status(user.getStatus())
+                .gender(user.getGender())
+                .createdAt(user.getCreatedAt())
+                .updatedAt(user.getUpdatedAt())
+                .totalBookings(totalBookings != null ? totalBookings : 0L)
+                .build();
+    }
+
 }

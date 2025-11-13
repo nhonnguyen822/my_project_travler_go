@@ -40,9 +40,7 @@ public class PaymentController {
     @Value("${app.frontend.url}")
     private String frontendUrl;
 
-    /**
-     * Tạo liên kết thanh toán VNPay
-     */
+
     @PostMapping("/create")
     public Map<String, String> createPayment(@RequestBody PaymentRequest payload,
                                              HttpServletRequest request) {
@@ -97,7 +95,6 @@ public class PaymentController {
         String service = parts[0];
         Long bookingId = Long.valueOf(parts[1]);
 
-        // --- Gọi xử lý thanh toán (dù thành công hay thất bại) ---
         String status = success ? "success" : "failed";
         paymentService.handlePaymentResult(txnRef, amount, service, bookingId, status);
 
@@ -108,14 +105,6 @@ public class PaymentController {
         String redirectUrl;
         if (success && bookingOpt.isPresent()) {
             Booking booking = bookingOpt.get();
-//            try {
-//                // 👉 Gửi email xác nhận + vé đính kèm
-//                mailService.sendBookingConfirmation(booking, txnRef);
-//            } catch (Exception e) {
-//                e.printStackTrace();
-//                System.err.println("❌ Gửi email thất bại: " + e.getMessage());
-//            }
-
             redirectUrl = String.format(
                     "%s/payment-result?success=true&message=%s&bookingId=%d&txnRef=%s&tourId=%d",
                     frontendUrl,

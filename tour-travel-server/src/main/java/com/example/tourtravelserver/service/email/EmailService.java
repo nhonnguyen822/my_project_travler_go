@@ -167,8 +167,8 @@ public class EmailService implements IMailService {
                 context.setVariable("tourName", tourName);
 
                 // Format thông tin giá
-                if (booking.getTotalPrice() != null) {
-                    context.setVariable("totalPrice", formatCurrency(booking.getTotalPrice()));
+                if (booking.getPaidAmount() != null) {
+                    context.setVariable("totalPrice", formatCurrency(booking.getPaidAmount()));
                 }
                 if (schedule != null) {
                     if (schedule.getPrice() != null) {

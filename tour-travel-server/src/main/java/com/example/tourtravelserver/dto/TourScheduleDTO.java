@@ -19,5 +19,4 @@ public class TourScheduleDTO {
     private BigDecimal price;
     private BigDecimal childPrice;
     private BigDecimal babyPrice;
-    private Integer availableSlots;
 }

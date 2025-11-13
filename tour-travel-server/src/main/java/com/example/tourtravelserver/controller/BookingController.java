@@ -1,9 +1,6 @@
 package com.example.tourtravelserver.controller;
 
-import com.example.tourtravelserver.dto.AdminBookingRequest;
-import com.example.tourtravelserver.dto.AdminBookingResponse;
-import com.example.tourtravelserver.dto.BookingRequest;
-import com.example.tourtravelserver.dto.BookingResponse;
+import com.example.tourtravelserver.dto.*;
 import com.example.tourtravelserver.entity.Booking;
 import com.example.tourtravelserver.service.IBookingService;
 import com.example.tourtravelserver.service.ITourService;
@@ -46,6 +43,7 @@ public class BookingController {
             @Valid @RequestBody AdminBookingRequest bookingRequest) {
         try {
             AdminBookingResponse booking = bookingService.createBookingByAdmin(bookingRequest);
+            System.out.println(booking);
             return ResponseEntity.ok(booking);
 
         } catch (Exception e) {
@@ -73,7 +71,6 @@ public class BookingController {
         }
     }
 
-
     @GetMapping("/filter")
     public ResponseEntity<Page<BookingResponse>> getBookingsWithFilters(
             @RequestParam(required = false) String userName,
@@ -87,10 +84,8 @@ public class BookingController {
 
         Pageable pageable = PageRequest.of(page, size,
                 Sort.by(Sort.Direction.fromString(sortDirection), sortBy));
-
         Page<BookingResponse> bookings = bookingService.findAllWithFilters(
                 userName, bookingCode, tourTitle, status, pageable);
-
         return ResponseEntity.ok(bookings);
     }
 
@@ -111,5 +106,93 @@ public class BookingController {
                 search, status, pageable);
 
         return ResponseEntity.ok(bookings);
+    }
+
+    @PatchMapping("/{bookingId}/details")
+    public ResponseEntity<?> updateBookingDetails(
+            @PathVariable Long bookingId,
+            @Valid @RequestBody AdminBookingRequest updateRequest) {
+        try {
+            AdminBookingResponse bookingResponse = bookingService.updateBookingDetails(bookingId, updateRequest);
+            return ResponseEntity.ok(bookingResponse);
+
+        } catch (RuntimeException e) {
+            System.err.println("❌ Error updating booking: " + e.getMessage());
+            return ResponseEntity.badRequest()
+                    .body("❌ Lỗi cập nhật booking: " + e.getMessage());
+        } catch (Exception e) {
+            System.err.println("❌ Unexpected error: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("❌ Lỗi hệ thống: " + e.getMessage());
+        }
+    }
+
+    @PatchMapping("/{bookingId}/status")
+    public ResponseEntity<?> updateBookingStatus(
+            @PathVariable Long bookingId,
+            @Valid @RequestBody BookingDeleteRequest statusUpdateRequest) {
+        try {
+            BookingResponse bookingResponse = bookingService.updateBookingStatus(
+                    bookingId,
+                    statusUpdateRequest.getStatus(),
+                    statusUpdateRequest.getReason()
+            );
+            return ResponseEntity.ok(bookingResponse);
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("❌ Lỗi hệ thống: " + e.getMessage());
+        }
+    }
+
+
+    @GetMapping("/statuses")
+    public List<StatusOption> getAllStatuses() {
+        return bookingService.getAllStatuses();
+    }
+
+
+    @GetMapping("/cancelled")
+    public ResponseEntity<Page<BookingResponse>> getCancelledBookings(
+            @RequestParam(required = false) String userName,
+            @RequestParam(required = false) String bookingCode,
+            @RequestParam(required = false) String tourTitle,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+
+        Pageable pageable = PageRequest.of(page, size, Sort.by("bookingDate").descending());
+        Page<BookingResponse> cancelledBookings = bookingService.getCancelledBookings(userName, bookingCode, tourTitle, pageable);
+
+        return ResponseEntity.ok(cancelledBookings);
+    }
+
+    @GetMapping("/cancelled/search")
+    public ResponseEntity<Page<BookingResponse>> searchCancelledBookings(
+            @RequestParam(required = false) String search,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+
+        Pageable pageable = PageRequest.of(page, size, Sort.by("bookingDate").descending());
+        Page<BookingResponse> cancelledBookings = bookingService.searchCancelledBookings(search, pageable);
+        return ResponseEntity.ok(cancelledBookings);
+    }
+
+    @PatchMapping("/{bookingId}/payment")
+    public ResponseEntity<?> updateBookingPayment(
+            @PathVariable Long bookingId,
+            @Valid @RequestBody AdminPaymentRequest paymentRequest) {
+        try {
+            BookingResponse updatedBooking = bookingService.updateBookingPayment(bookingId, paymentRequest);
+            return ResponseEntity.ok(updatedBooking);
+
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest()
+                    .body("❌ Lỗi cập nhật thanh toán: " + e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("❌ Lỗi hệ thống: " + e.getMessage());
+        }
     }
 }

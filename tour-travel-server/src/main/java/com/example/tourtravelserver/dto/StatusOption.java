@@ -7,8 +7,7 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class PaymentRequest {
-    private Long bookingId;
-    private long totalAmount;
-    private String orderInfo;
+public class StatusOption {
+    private String code;
+    private String label;
 }

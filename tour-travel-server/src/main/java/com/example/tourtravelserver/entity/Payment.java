@@ -19,22 +19,30 @@ public class Payment {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
     private BigDecimal amount;
-
-    private LocalDateTime paymentDate;
-
     @Enumerated(EnumType.STRING)
     private PaymentStatus status;
-
     private String transactionCode;
-
-
     @Enumerated(EnumType.STRING)
     private PaymentMethod paymentMethod;
-
     @OneToOne
     @JoinColumn(name = "booking_id")
     private Booking booking;
+    @Builder.Default
+    private LocalDateTime createdAt = LocalDateTime.now();
+    @Builder.Default
+    private LocalDateTime updatedAt = LocalDateTime.now();
+    @PrePersist
+    protected void onCreate() {
+        createdAt = LocalDateTime.now();
+        updatedAt = LocalDateTime.now();
+        if (transactionCode == null) {
+            transactionCode = "TXN" + System.currentTimeMillis();
+        }
+    }
+    @PreUpdate
+    protected void onUpdate() {
+        updatedAt = LocalDateTime.now();
+    }
 
 }

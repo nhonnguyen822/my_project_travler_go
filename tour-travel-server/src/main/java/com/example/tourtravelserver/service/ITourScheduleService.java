@@ -13,16 +13,18 @@ public interface ITourScheduleService {
 
     TourSchedule createSchedule(Long tourId, TourScheduleRequestDTO dto);
 
-    TourSchedule updateSchedule(Long scheduleId, TourSchedule tourSchedule);
+    TourSchedule updateSchedule(Long scheduleId, TourScheduleRequestDTO tourScheduleRequestDTO);
 
     TourSchedule deleteSchedule(Long scheduleId);
 
-    ScheduleStatus calculateCurrentStatus(TourSchedule schedule);
-
-    boolean hasAvailableSlots(TourSchedule schedule);
-
     Optional<TourSchedule> findById(Long scheduleId);
     int countBookingsActiveByTourSchedule(Long id);
+
+    List<TourSchedule> getFutureSchedulesByTour(Long tourId);
+
+    TourSchedule getScheduleByBookingId(Long bookingId);
+
+    void updateScheduleStatusAutomatically();
 
 }
 

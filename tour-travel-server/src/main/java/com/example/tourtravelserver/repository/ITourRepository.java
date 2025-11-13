@@ -15,23 +15,20 @@ import java.util.Optional;
 
 public interface ITourRepository extends JpaRepository<Tour, Long> {
 
-    // Tìm tour theo ID và chưa bị xóa
+
     @Query(value = "SELECT * FROM tours WHERE id = :tourId AND deleted = false", nativeQuery = true)
     Optional<Tour> findTourById(@Param("tourId") Long tourId);
 
-    // Tìm tour theo ID kể cả đã bị xóa (cho admin)
     @Query(value = "SELECT * FROM tours WHERE id = :tourId", nativeQuery = true)
     Optional<Tour> findTourByIdIncludingDeleted(@Param("tourId") Long tourId);
 
-    // Tìm tour theo region và chưa bị xóa
     @Query(value = "SELECT * FROM tours WHERE region_id = :regionId AND deleted = false", nativeQuery = true)
     List<Tour> findByRegionId(@Param("regionId") Long regionId);
 
-    // Tìm tất cả tour chưa bị xóa
     @Query(value = "SELECT * FROM tours WHERE deleted = false", nativeQuery = true)
     List<Tour> findAllActiveTours();
 
-    // Filter tours với điều kiện chưa bị xóa
+
     @Query(
             value = """
                     SELECT * FROM tours t
@@ -136,13 +133,13 @@ public interface ITourRepository extends JpaRepository<Tour, Long> {
         return Optional.empty();
     }
 
-    default Optional<Tour> restoreAndReturn(Long id) {
-        int updatedRows = restore(id);
-        if (updatedRows > 0) {
-            return findById(id); // Query lại để lấy entity đã cập nhật
-        }
-        return Optional.empty();
-    }
+//    default Optional<Tour> restoreAndReturn(Long id) {
+//        int updatedRows = restore(id);
+//        if (updatedRows > 0) {
+//            return findById(id); // Query lại để lấy entity đã cập nhật
+//        }
+//        return Optional.empty();
+//    }
 
     @Query(value = "SELECT COUNT(*) \n" +
             "FROM tours t \n" +
@@ -150,5 +147,19 @@ public interface ITourRepository extends JpaRepository<Tour, Long> {
             "WHERE t.id = :tourId \n" +
             "  AND ts.status = 'ACTIVE'", nativeQuery = true)
     int countActiveTourSchedules(@Param("tourId") Long tourId);
+
+
+    @Query(value = """
+    SELECT t.* FROM tours t 
+    WHERE t.deleted = 0 
+    AND t.status = 'ACTIVE' 
+    AND EXISTS (
+        SELECT 1 FROM tour_schedules ts 
+        WHERE ts.tour_id = t.id 
+        AND ts.status IN ('UPCOMING', 'ONGOING')
+        AND ts.start_date > CURDATE()
+    )
+    """, nativeQuery = true)
+    List<Tour> findByStatusNotDeletedAndActiveWithFutureSchedules();
 
 }

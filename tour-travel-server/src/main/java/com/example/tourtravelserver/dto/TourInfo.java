@@ -19,5 +19,4 @@ public class TourInfo {
     private Double price;
     private Double childPrice;
     private Double babyPrice;
-    private Integer availableSlots;
 }

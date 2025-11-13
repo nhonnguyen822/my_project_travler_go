@@ -2,13 +2,15 @@ package com.example.tourtravelserver.service;
 
 import com.example.tourtravelserver.entity.Tour;
 import com.example.tourtravelserver.entity.TourSchedule;
-import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.*;
 
 import java.util.List;
 
-@Data
+@Getter
+@Setter
+@NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class TourDeleteResult {
     private boolean success;
     private String message;

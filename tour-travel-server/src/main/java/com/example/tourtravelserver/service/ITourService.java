@@ -32,4 +32,6 @@ public interface ITourService {
     boolean restoreTour(Long id);
 
     int countActiveTourSchedules(Long tourId);
+
+    List<Tour> getActiveTours();
 }

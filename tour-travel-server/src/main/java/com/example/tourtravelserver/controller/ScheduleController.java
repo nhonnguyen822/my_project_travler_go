@@ -1,6 +1,5 @@
 package com.example.tourtravelserver.controller;
 
-import com.example.tourtravelserver.dto.TourScheduleDTO;
 import com.example.tourtravelserver.dto.TourScheduleRequestDTO;
 import com.example.tourtravelserver.entity.TourSchedule;
 import com.example.tourtravelserver.service.ITourScheduleService;
@@ -20,10 +19,7 @@ public class ScheduleController {
 
     private final ITourScheduleService scheduleService;
 
-    // ================================
-    //  Lấy danh sách lịch trình theo tour
-    // ================================
-    @GetMapping("tour/{tourId}")
+    @GetMapping("tours/{tourId}")
     public ResponseEntity<?> getSchedulesByTour(@PathVariable Long tourId) {
         List<TourSchedule> schedules = scheduleService.getSchedulesByTour(tourId);
         if (schedules.isEmpty()) {
@@ -32,10 +28,16 @@ public class ScheduleController {
         return new ResponseEntity<>(schedules, HttpStatus.OK);
     }
 
+    @GetMapping("/tour/{tourId}/future")
+    public ResponseEntity<?> getFutureSchedulesByTour(@PathVariable Long tourId) {
+        List<TourSchedule> futureSchedules = scheduleService.getFutureSchedulesByTour(tourId);
+        if (futureSchedules.isEmpty()) {
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        }
+        return new ResponseEntity<>(futureSchedules, HttpStatus.OK);
+    }
 
-    // ================================
-    //  Tạo mới lịch trình cho tour
-    // ================================
+
     @PostMapping("/{tourId}")
     public ResponseEntity<?> createSchedule(
             @PathVariable Long tourId,
@@ -50,13 +52,10 @@ public class ScheduleController {
         }
     }
 
-    // ================================
-    //  Cập nhật lịch trình
-    // ================================
     @PatchMapping("{scheduleId}")
     public ResponseEntity<?> updateSchedule(
             @PathVariable Long scheduleId,
-            @RequestBody TourSchedule schedule
+            @RequestBody TourScheduleRequestDTO schedule
     ) {
         try {
             TourSchedule updated = scheduleService.updateSchedule(scheduleId, schedule);
@@ -88,6 +87,20 @@ public class ScheduleController {
                     "message", "Hủy lịch trình thành công",
                     "schedule", cancelledSchedule
             ));
+        } catch (RuntimeException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+        }
+    }
+
+
+    @GetMapping("/booking/{bookingId}")
+    public ResponseEntity<?> getScheduleByBookingId(@PathVariable Long bookingId) {
+        try {
+            TourSchedule schedule = scheduleService.getScheduleByBookingId(bookingId);
+            if (schedule == null) {
+                return new ResponseEntity<>("Không tìm thấy lịch trình cho booking ID: " + bookingId, HttpStatus.NOT_FOUND);
+            }
+            return new ResponseEntity<>(schedule, HttpStatus.OK);
         } catch (RuntimeException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         }

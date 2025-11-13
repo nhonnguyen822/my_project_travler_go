@@ -77,7 +77,7 @@ public class VNPayService {
                 .amount(java.math.BigDecimal.valueOf(amount))
                 .paymentMethod(PaymentMethod.VN_PAY)
                 .status(PaymentStatus.PENDING)
-                .paymentDate(LocalDateTime.now())
+                .createdAt(LocalDateTime.now())
                 .booking(booking)
                 .build();
 

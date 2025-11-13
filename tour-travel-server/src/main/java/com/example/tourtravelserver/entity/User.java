@@ -1,15 +1,22 @@
 package com.example.tourtravelserver.entity;
 
 
+import com.example.tourtravelserver.enums.CustomerType;
+import com.example.tourtravelserver.enums.Gender;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
+import java.util.Random;
 
 @Getter
 @Setter
@@ -38,6 +45,29 @@ public class User implements UserDetails {
     private String providerId;
 
     private Boolean emailVerification;
+
+
+    @Column(unique = true)
+    private String customerCode;
+
+    private LocalDate dateOfBirth;
+
+    @Enumerated(EnumType.STRING)
+    private Gender gender;
+
+    private String identityNumber;
+    private String address;
+
+    @Enumerated(EnumType.STRING)
+    private CustomerType customerType = CustomerType.REGULAR;
+
+    @CreationTimestamp
+    @Column(name = "created_at", updatable = false)
+    private LocalDateTime createdAt;
+
+    @UpdateTimestamp
+    @Column(name = "updated_at")
+    private LocalDateTime updatedAt;
 
     private Boolean status;
     @Column(columnDefinition = "TEXT")
@@ -85,6 +115,18 @@ public class User implements UserDetails {
     @Override
     public boolean isEnabled() {
         return status;
+    }
+
+    public String generateCustomerCode() {
+        String characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+        Random random = new Random();
+        StringBuilder code = new StringBuilder("KH-");
+
+        for (int i = 0; i < 5; i++) {
+            int index = random.nextInt(characters.length());
+            code.append(characters.charAt(index));
+        }
+        return code.toString();
     }
 
 }

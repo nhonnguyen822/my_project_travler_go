@@ -451,12 +451,6 @@ public class TourService implements ITourService {
         // 7️⃣ Lưu tất cả
         Tour saved = tourRepository.save(tour);
 
-//        // 8️⃣ Force load tất cả collections để tránh lazy-loading
-//        saved.getImages().size();
-//        saved.getItineraryDays().forEach(d -> d.getActivities().size());
-//        saved.getServices().size();
-//        saved.getPolicies().size();
-
         // 9️⃣ Tạo DTO thủ công
         TourDetailResponse response = new TourDetailResponse();
         response.setId(saved.getId());
@@ -542,6 +536,11 @@ public class TourService implements ITourService {
     @Override
     public int countActiveTourSchedules(Long tourId) {
         return tourRepository.countActiveTourSchedules(tourId);
+    }
+
+    @Override
+    public List<Tour> getActiveTours() {
+        return tourRepository.findByStatusNotDeletedAndActiveWithFutureSchedules();
     }
 
     @Override
