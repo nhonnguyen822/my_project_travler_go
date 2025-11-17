@@ -11,6 +11,7 @@ import com.example.tourtravelserver.repository.IBookingRepository;
 import com.example.tourtravelserver.repository.IPaymentRepository;
 import com.example.tourtravelserver.repository.ITourScheduleRepository;
 import com.example.tourtravelserver.repository.IUserRepository;
+import com.example.tourtravelserver.service.NotificationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -25,6 +26,7 @@ public class PaymentService {
     private final IPaymentRepository paymentRepository;
     private final ITourScheduleRepository scheduleRepository;
     private final IUserRepository userRepository;
+    private final NotificationService notificationService;
 
     public void handlePaymentResult(String txnRef, long amount, String service, Long bookingId, String status) {
 
@@ -42,7 +44,7 @@ public class PaymentService {
 
         if (success) {
             BookingStatus bookingStatus;
-
+            notificationService.notifyPaymentSuccess(booking);
             if (paidAmount.compareTo(totalAmount) >= 0) {
                 bookingStatus = BookingStatus.PAID;
                 System.out.printf("[VNPay] ✅ HOÀN THÀNH | Booking #%d | Đã thanh toán toàn bộ: %,.0f VND | Tổng giá trị: %,.0f VND%n",

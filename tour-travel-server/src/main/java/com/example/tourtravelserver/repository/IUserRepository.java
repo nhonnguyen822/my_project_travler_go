@@ -8,10 +8,12 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface IUserRepository extends JpaRepository<User, Long> {
     Optional<User> findByEmail(String email);
+
     boolean existsByEmail(String email);
 
     @Query(value = "SELECT COUNT(*) FROM bookings b WHERE b.user_id = :userId", nativeQuery = true)
@@ -108,7 +110,7 @@ public interface IUserRepository extends JpaRepository<User, Long> {
                     "AND (LOWER(u.name) LIKE LOWER(CONCAT('%',:search, '%'))\n" +
                     " OR LOWER(u.email) LIKE LOWER(CONCAT('%',:search, '%')) \n" +
                     " OR u.phone LIKE CONCAT('%', :search, '%')\n" +
-                    " OR u.customer_code LIKE CONCAT('%',:search, '%')) \n" ,
+                    " OR u.customer_code LIKE CONCAT('%',:search, '%')) \n",
             nativeQuery = true)
     Page<User> findBySearchCustomerTypeByNullAndStatusByNull(
             @Param("search") String search,
@@ -124,4 +126,7 @@ public interface IUserRepository extends JpaRepository<User, Long> {
             nativeQuery = true)
     Optional<User> findByEmailAndRoleName(@Param("email") String email,
                                           @Param("roleName") String roleName);
+
+
+    List<User> findByRole_Name(String roleName);
 }

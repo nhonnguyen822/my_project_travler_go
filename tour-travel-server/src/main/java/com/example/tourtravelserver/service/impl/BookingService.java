@@ -5,6 +5,7 @@ import com.example.tourtravelserver.entity.*;
 import com.example.tourtravelserver.enums.*;
 import com.example.tourtravelserver.repository.*;
 import com.example.tourtravelserver.service.IBookingService;
+import com.example.tourtravelserver.service.NotificationService;
 import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.RequiredArgsConstructor;
@@ -35,6 +36,7 @@ public class BookingService implements IBookingService {
     private final IUserRepository userRepository;
     private final IRoleRepository roleRepository;
     private final IPaymentRepository paymentRepository;
+    private final NotificationService notificationService;
 
     @Override
     public Booking createBooking(BookingRequest request) {
@@ -50,11 +52,13 @@ public class BookingService implements IBookingService {
                 .adultCount(request.getAdultCount())
                 .childCount(request.getChildCount())
                 .babyCount(request.getBabyCount())
-                .paidAmount(request.getTotalPrice() != null ? request.getTotalPrice() : BigDecimal.ZERO)
+                .paidAmount(BigDecimal.ZERO)
                 .status(request.getStatus() != null ? BookingStatus.valueOf(request.getStatus()) : BookingStatus.PENDING)
                 .tourSchedule(tourSchedule)
                 .user(user)
                 .build();
+
+        notificationService.notifyNewBooking(booking);
         return bookingRepository.save(booking);
     }
 
@@ -175,7 +179,7 @@ public class BookingService implements IBookingService {
                     .status(BookingStatus.PENDING)
                     .notes(request.getNotes())
                     .build();
-
+            notificationService.notifyNewBooking(booking);
             Booking savedBooking = bookingRepository.save(booking);
 
             tourScheduleRepository.save(tourSchedule);
@@ -235,7 +239,6 @@ public class BookingService implements IBookingService {
                     .createdAt(booking.getBookingDate())
                     .build();
             System.out.println(adminBookingResponse);
-
             return adminBookingResponse;
         } catch (Exception e) {
             throw new RuntimeException("❌ Lỗi tạo booking: " + e.getMessage());

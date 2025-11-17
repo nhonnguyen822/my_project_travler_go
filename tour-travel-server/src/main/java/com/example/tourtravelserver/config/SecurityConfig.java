@@ -48,7 +48,7 @@ public class SecurityConfig {
                                 "/api/tours/region/**","/api/mail/**","/api/geo/**","/api/upload/**",
                                 "/api/schedules/**","/api/service-tour/**","/api/policies/**").permitAll()
                         .requestMatchers("/api/user/**", "/api/transactions","/api/bookings/**").hasAnyAuthority("USER", "ADMIN")
-                        .requestMatchers("/api/admin/**").hasAuthority("ADMIN")
+                        .requestMatchers("/api/admin/**","/api/notifications/**").hasAuthority("ADMIN")
                         .anyRequest().authenticated()
                 )
                 .exceptionHandling(e -> e
